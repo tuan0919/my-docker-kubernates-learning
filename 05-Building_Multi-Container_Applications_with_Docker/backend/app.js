@@ -31,6 +31,7 @@ app.use((req, res, next) => {
 
 app.get('/goals', async (req, res) => {
   console.log('TRYING TO FETCH GOALS');
+  console.log("GET ENDPOINT.")
   try {
     const goals = await Goal.find();
     res.status(200).json({
