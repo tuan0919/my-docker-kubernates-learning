@@ -2,7 +2,7 @@
 docker network create goal-network
 
 # Tải & chạy image cho mongodb, add image này vào goal-network
-docker run --rm --name mongodb --network goal-network mongo
+docker run --rm --name mongodb -v data:/data/db --network goal-network mongo
 
 # Build Image cho backend
 cd 05-Building_Multi-Container_Applications_with_Docker\backend
@@ -15,4 +15,3 @@ cd 05-Building_Multi-Container_Applications_with_Docker\frontend
 docker build -t goal-react:latest .
 # Run container frontend
 docker run -p 3000:3000 -it --name goal-frontend -v app/node_modules -v "C:\Users\Tuan\Desktop\my-docker-kubernates-learning\05-Building_Multi-Container_Applications_with_Docker\frontend:/app" goal-react:latest
-docker logs goal-frontend
