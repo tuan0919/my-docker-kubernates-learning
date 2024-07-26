@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
+const user = process.env.MONGO_INITDB_ROOT_USERNAME
+const pass = process.env.MONGO_INITDB_ROOT_PASSWORD
+
 const Goal = require('./models/goal');
 
 const app = express();
@@ -84,11 +87,7 @@ app.delete('/goals/:id', async (req, res) => {
 });
 
 mongoose.connect(
-  'mongodb://mongodb:27017/course-goals',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
+  `mongodb://${user}:${pass}@mongodb:27017/course-goals?retryWrites=true&writeConcern=majority&authSource=admin`,  
   (err) => {
     if (err) {
       console.error('FAILED TO CONNECT TO MONGODB');
