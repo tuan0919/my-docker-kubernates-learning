@@ -1,15 +1,42 @@
 version: '3.8'
 services:
   mongodb:
+    container_name: mongodb
     image: 'mongo'
     volumes:
       - data:/data/db
     environment:
-      - MONGO_INITDB_ROOT_USERNAME: nqat0919
-      - MONGO_INITDB_ROOT_PASSWORD: secretpassword
-    # env_file:
-    #   - ./var.env
-  # backend:
-  # frontend:
+      MONGO_INITDB_ROOT_USERNAME: nqat0919
+      MONGO_INITDB_ROOT_PASSWORD: secretpassword
+  backend:
+    container_name: goal-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb
+  frontend:
+    container_name: goal-frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
 volumes:
   data:
+  logs:

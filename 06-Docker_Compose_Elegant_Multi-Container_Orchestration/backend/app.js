@@ -6,8 +6,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
-const user = process.env.MONGO_INITDB_ROOT_USERNAME
-const pass = process.env.MONGO_INITDB_ROOT_PASSWORD
+const user = process.env.DATABASE_USERNAME
+const pass = process.env.DATABASE_PASSWORD
 
 const Goal = require('./models/goal');
 
