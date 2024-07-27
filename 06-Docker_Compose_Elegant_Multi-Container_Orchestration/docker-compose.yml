@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  mongodb:
+    image: 'mongo'
+    volumes:
+      - data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME: nqat0919
+      - MONGO_INITDB_ROOT_PASSWORD: secretpassword
+    # env_file:
+    #   - ./var.env
+  # backend:
+  # frontend:
+volumes:
+  data:
