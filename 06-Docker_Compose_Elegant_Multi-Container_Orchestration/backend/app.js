@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
+const user = process.env.MONGO_INITDB_ROOT_USERNAME
+const pass = process.env.MONGO_INITDB_ROOT_PASSWORD
+
 const Goal = require('./models/goal');
 
 const app = express();
@@ -28,6 +31,7 @@ app.use((req, res, next) => {
 
 app.get('/goals', async (req, res) => {
   console.log('TRYING TO FETCH GOALS');
+  console.log("GET ENDPOINT.")
   try {
     const goals = await Goal.find();
     res.status(200).json({
@@ -84,17 +88,13 @@ app.delete('/goals/:id', async (req, res) => {
 });
 
 mongoose.connect(
-  `mongodb://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@mongodb:27017/course-goals?authSource=admin`,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
+  `mongodb://${user}:${pass}@mongodb:27017/course-goals?retryWrites=true&writeConcern=majority&authSource=admin`,  
   (err) => {
     if (err) {
       console.error('FAILED TO CONNECT TO MONGODB');
       console.error(err);
     } else {
-      console.log('CONNECTED TO MONGODB!!');
+      console.log('CONNECTED TO MONGODB');
       app.listen(80);
     }
   }
