@@ -75,3 +75,55 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 - `docker pull IMAGE`: **pull** (download) một image từ DockerHub (hoặc một registry khác) xuống máy - _lệnh này sẽ được tự động gọi khi dùng lệnh `docker run IMAGE` với điều kiện image chưa được pull về trước đó và không có local image nào có tên tương tự.
   
 </details>
+
+## Data & Volumes
+
+<details>
+  <summary>
+    <strong>Vấn đề với Container</strong>
+  </summary>
+  
+  <div>
+    <hr>
+    <p>
+      <strong>Image là chỉ đọc</strong> - một khi chúng được tạo ra, chúng không thể bị thay đổi (cần phải rebuild lại nếu cần cập nhật lại code).
+    </p>
+    <p>
+      <strong>Container có thể đọc và viết (thay đổi)</strong> - chúng thêm một layer <strong>có quyền đọc & viết</strong> mỏng phía bên trên image, qua đó có thể thay đổi nội dung các file và thư mục bên trong một image mà không thật sự làm thay đổi image.
+    </p>
+    <p>
+          Nhưng kể cả có quyền đọc viết đối với Container, <strong>có hai vấn đề lớn</strong> đối với các ứng dụng chạy trong Docker:
+    </p>
+    <ol>
+      <li>
+        <strong>Data được viết bên trong một container không được đảm bảo</strong>: Nếu container bị dừng lại và xóa, tất cả các data đã viết ở container sẽ biến mất.
+      </li>
+      <li>
+        <strong>Container không tương tác được với file hệ thống</strong>: Nếu ta thay đổi gì đó trong project, những thay đổi này không được ánh xạ vào các container đang chạy, chúng ta cần phải rebuild lại một image mới trên project đã thay đổi, rồi sau đó start một container mới dựa trên image vừa build.
+      </li>
+    </ol>
+    <p>
+      <strong>Vấn đề 1</strong> có thể được xử lí nhờ vào một tính năng của Docker được gọi là "<strong>Volume</strong>", trong khi đó <strong>Vấn đề 2</strong> sẽ được xử lí nhờ vào "<strong>Bind mounts</strong>".
+    </p>
+  </div>
+</details>
+
+### Volumes
+
+<details>
+  <summary>Khái niệm</summary>
+  <hr>
+  <p>Volumes là các thư mục (file) trên host machine được kết nối với thư mục / file bên trong một docker container.</p>
+<p>Có <b>hai loại Volumes</b>:</p>
+  
+  - **Anonymous Volumes**: được tạo bằng lệnh `-v /duong-dan/ben-trong/container` và sẽ **tự động bị xóa đi** khi mà một container bị xóa đi bởi flag `--rm` được thêm vào bên cạnh lệnh `docker run`
+
+  - **Named Volumes**: được tạo bằng lệnh `-v ten-volume:/duong-dan/ben-trong/container` và sẽ **không tự động bị xóa** khi mà một container bị xóa.
+
+Với Volumes, **data có thể được pass vào một container** (nếu folder volumes bên trong host machine không rỗng) và có thể lưu trữ được các data được viết bởi container (những thay đổi của container mà được ánh xạ đến folder tương ứng trên host machine).
+
+*(lưu ý: volume về cơ bản vẫn là một folder bên trong host machine, chỉ là nó có thể bị hoặc không bị quản lí bởi Docker.)*
+
+**Volumes được tạo ra và quản lí bởi Docker** - với developer, chúng ta không nhất thiết phải biết các volume này thực tế nằm ở đâu bên trong host machine. Bởi vì các volumes đó được mặc định hiểu là **không được tạo ra cho chúng ta tương tác trực tiếp với chúng** - Nếu thật sự cần, thì sử dụng "Bind mounts".
+
+</details>
