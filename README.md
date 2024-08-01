@@ -33,7 +33,7 @@ Do đó, **nhiều Containers có thể được khởi động dựa trên cùn
 Chúng ta cần tạo và khởi động một Container để bắt đầu ứng dụng bên trong Container. Vì vậy, Containers là những gì cuối cùng được thực thi - cả trong giai đoạn **development** và **production**.
 </details>
 
-### Command Docker:
+## Command Docker:
 
 <details>
   <summary>
@@ -89,7 +89,7 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 
   - `docker run -v /duong-dan-tuyet-doi/ben-trong/host-machine:/duong-dan/ben-trong/container`: **Bind Mount** một tài nguyên có đường dẫn tuyệt đối `/duong-dan-tuyet-doi/ben-trong/host-machine` trên host machine đến tài nguyên có đường dẫn `/duong-dan/ben-trong/container` bên trong Container.
 
-  - `docker volume ls`: Liệt kê ra toàn bộ volume **đang hoạt động / đang lưu trữ ** (của tất cả các container).
+  - `docker volume ls`: Liệt kê ra toàn bộ volume **đang hoạt động / đang lưu trữ** (của tất cả các container).
 
   - `docker volume create VOL_NAME`: **Tạo một volume mới (Named Volume)** có tên `VOL_NAME`. Thường thì không sử dụng đến vì Docker sẽ tự động tạo một Named Volume trong trường hợp Named Volume chúng ta định nghĩa ra ở lệnh `docker run` không tồn tại.
 
