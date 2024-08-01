@@ -145,7 +145,7 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 
 Với Volumes, **data có thể được pass vào một container** (nếu folder volumes bên trong host machine không rỗng) và có thể lưu trữ được các data được viết bởi container (những thay đổi của container mà được ánh xạ đến folder tương ứng trên host machine).
 
-*(lưu ý: volume về cơ bản vẫn là một folder bên trong host machine, chỉ là nó có thể bị hoặc không bị quản lí bởi Docker.)*
+*(lưu ý: volume về cơ bản vẫn là một tài nguyên bên trong host machine, chỉ là nó được quản lí bởi Docker chứ không phải chúng ta, và chúng ta cũng không nên can thiệp vào các tài nguyên này.)*
 
 **Volumes được tạo ra và quản lí bởi Docker** - là developer, chúng ta không nhất thiết phải biết các volume này thực tế nằm ở đâu bên trong host machine. Bởi vì các volumes đó được mặc định hiểu là **không được tạo ra cho chúng ta tương tác trực tiếp với chúng** - Nếu thật sự cần, thì sử dụng "Bind mounts".
 
@@ -153,7 +153,7 @@ Với Volumes, **data có thể được pass vào một container** (nếu fold
 
 Anonymous Volumes có thể giúp ích trong trường hợp cần đảm bảo một số folder nội bộ trong container **không thể bị ghi đè** bởi "Bind mount".
 
-Mặc định thì, **Anonymous Volumes sẽ bị xóa** nếu container được khởi động với flag `--rm` và dừng lại sau đó. Chúng sẽ **không bị xóa** nếu như container chỉ khởi động thông thường (không có option `--rm` rồi bị xóa.
+Mặc định thì, **Anonymous Volumes sẽ bị xóa** nếu container được khởi động với flag `--rm` và dừng lại sau đó. Chúng sẽ **không bị xóa** nếu như container chỉ khởi động thông thường (không có option `--rm`) rồi bị xóa.
 
 **Named Volumes sẽ không bao giờ bị xóa**, chúng ta xóa nó một cách chủ động bằng lệnh `docker rm VOL_NAME`
 
@@ -179,4 +179,94 @@ Mặc định thì, **Anonymous Volumes sẽ bị xóa** nếu container đượ
 
   Về cơ bản, **Bind Mounts rất phù hợp trong quá trình phát triển ứng dụng** - chúng không được sinh ra để sử dụng trong giai đoạn production (bởi vì container nên được chạy độc lập với host machine của nó).
     
+</details>
+
+## Networks / Request
+
+<details>
+  <summary>
+    <strong>Đặt vấn đề</strong>
+  </summary>
+  <hr>
+
+  Trong nhiều chương trình, chúng ta cần nhiều hơn một container - vì hai lí do chính:
+
+  1. Việc chia nhỏ công việc ra, đảm bảo mỗi container chỉ thực hiện một task duy nhất được xem là **good practice** (vd: một container chạy database, một container chạy front-end, một container chạy back-end).
+
+  2. Rất khó để config nếu như một container làm quá nhiều việc (vd: một container chứa cả back-end, front-end và database).
+
+  Multi-Container là một việc khá phổ biến, đặc biệt là đối với các "ứng dụng thực tế":
+
+  Thông thường, các container cần giao tiếp thông qua:
+
+  - Thông qua **world wide web** (Không cần bận tâm đến, vì trong trường hợp này container có thể giao tiếp bình thường).
+
+  - Với **Host Machine**.
+
+  - **Nội bộ các containers** với nhau.
+
+</details>
+
+<details>
+  <summary>
+    <strong>Container giao tiếp với Host Machine</strong>
+  </summary>
+  <hr>
+
+ **Một lưu ý quan trọng:** *Nếu ta deploy container lên một server (một host machine khác), thì rất có thể chúng ta sẽ không phải giao tiếp với host machine đó. Giao tiếp giữa container với host machine thường chỉ là yêu cầu trong quá trình phát triển phần mềm chứ không phải là yêu cầu thực tế*
+
+*ví dụ: giao tiếp với một database đang chạy trên chính host machine của containter, việc mà không hay diễn ra trên thực tế.*
+
+  Xem xét đoạn mã này:
+  
+  ```js
+  fetch('localhost:3000/demo').then(...)
+  ```
+
+  Đoạn mã trên đang gửi một `GET` request đến một web server đang chạy trên local host machine (tức là **bên ngoài** của Container, nhưng **không phải** là trên WWW).
+
+  Trên localhost, đoạn mã trên sẽ hoạt động, nhưng bên trong một container, đoạn mã đó sẽ **không thể thực thi**. Bởi vì `localhost` bên trong đoạn mã đến ám chỉ đến chính bản thân Container, chứ **không phải là host machine đang chạy container** đó. Thế nhưng Docker đã cung cấp một giải pháp đơn giản cho vấn đề này.
+
+  Cần chỉnh sửa đoạn mã lại như sau:
+
+  ```js
+ fetch('host.docker.internal:3000/demo').then(...)
+  ```
+
+  `host.docker.internal` là một address / định danh / tên miền đặc biệt mà sẽ được Docker translate sang địa chỉ IP của host machine đang chạy Container.
+
+  **Lưu ý**: "translate" không có nghĩa là Docker sẽ modify lại source code của chúng ta hay tương tự, thay vào đó, nó chỉ phát hiện ra request đi ra bên ngoài Container và sẽ resolve IP cho request đó.
+  
+</details>
+
+<details>
+  <summary>
+    <strong>Container giao tiếp với container khác</strong>
+  </summary>
+  <hr>
+
+  Giao tiếp với container khác cũng khá đơn giản. Chúng ta có hai tùy chọn chính:
+  
+  1. Tìm thủ công địa chỉ IP của các container khác (tuy nhiên địa chỉ IP này có thể thay đổi)
+    
+  2. Sử dụng **Docker Network** và đặt các container vào cùng một **Network**.
+
+  Cách giải quyết `1.` không quá tối ưu vì các địa chỉ IP có thể thay đổi mỗi theo thời gian.
+
+  Cách giải quyết `2.` thì hoàn hảo. Với Docker chúng ta có thể tạo ra một Network với lệnh `docker network create SOME_NAME` rồi gắn các container vào chung một Network `SOME_NAME`.
+
+  Ví dụ:
+  ```docker
+docker run -network SOME_NAME --name container_1 my-image
+docker run -network SOME_NAME --name container_2 my-other-image
+  ```
+
+  Rồi sau đó, chúng ta có thể đơn giản sử dụng **container name** để cho phép các container giao tiếp với nhau - và lần nữa, Docker sẽ phát hiện ra request này và resolve IP cho chúng ta.
+
+  Ví dụ:
+
+  ```js
+  fetch('container_1/my-data').then(...)
+  ```
+  
 </details>
