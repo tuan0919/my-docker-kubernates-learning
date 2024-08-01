@@ -99,6 +99,30 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 
 </details>
 
+<details>
+  <summary>
+    <strong>Networks</strong>
+  </summary>
+  <hr>
+
+  - `docker network create SOME_NAME`: Tạo một **Docker Network** có tên `SOME_NAME`.
+
+  - `docker run -network SOME_NAME`: Gắn Container này vào Network `SOME_NAME`.
+
+</details>
+
+<details>
+  <summary>
+    <strong>Utility Containers</strong>
+  </summary>
+  <hr>
+
+  - `docker run -it IMAGE_NAME my command`: Chạy một container dựa trên image có tên / id `IMAGE_NAME` và override default command của image đó với command `my command`.
+
+  - `docker exec -it MY_CONTAINER my command`: Chạy command `my command` trên một container đang chạy có tên / id `MY_CONTAINER`.
+
+</details>
+
 ## Data & Volumes
 
 <details>
@@ -269,4 +293,143 @@ docker run -network SOME_NAME --name container_2 my-other-image
   fetch('container_1/my-data').then(...)
   ```
   
+</details>
+
+## Utility Container (định nghĩa không chính thức)
+
+<details>
+  <summary>
+    <strong>Đặt vấn đề</strong>
+  </summary>
+  <hr>
+
+  Thông thường chúng ta sử dụng Docker để xây dựng các **Application Container** - tức những container chứa application code và môi trường để chạy application đó. Tất nhiên, đây là một trong các lí do chính để chúng ta sử dụng đến Docker và là ý tưởng nền tảng đằng sau Docker:
+  1. Xây dựng Dockerfile.
+  2. Run file Dockerfile đấy để bắt đầu build Image và tạo Container.
+  3. Container chạy các CMD khởi đầu và bắt đầu chương trình.
+
+  Nhưng điều này không có nghĩa chúng ta không thể tận dụng Docker để thực thi các tác vụ khác, và đây là khi định nghĩa **Utility Container** được sử dụng.
+
+  (**Lưu ý**: *`Utility Container` không phải là một Định Nghĩa Chính Thức mà là được Định Nghĩa Chủ Quan bởi người viết.*)
+
+  **Utility Container** là những container mà chỉ có một số môi trường bên trong chúng (chẳng hạn môi trường NodeJS và môi trường PHP). Ý tưởng là các container này sẽ **không bắt đầu bất kì chương trình nào** khi chúng ta chạy chúng, mà chúng ta chạy chúng để **kết hợp với một số command** được chính chúng ta định nghĩa thông qua lệnh `docker exec` để thực thi một số tác vụ nhất định nào đó. 
+
+  ![Utility Containers](https://github.com/tuan0919/my-docker-kubernates-learning/blob/main/images/what_are_utility_container.png?raw=true)
+  
+</details>
+
+<details>
+  <summary>
+    <strong>Trường hợp cần sử dụng + ví dụ</strong>
+  </summary>
+  <hr>
+
+  Đối với các ứng dụng sử dụng môi trường phức tạp, chúng ta cần phải **cài đặt một số môi trường** để xác định một số config khởi đầu cho ứng dụng đó. Đúng là với Docker, ta có thể không cần phải cài đặt môi trường để **chạy ứng dụng**, nhưng chúng ta vẫn phải cài đặt môi trường để **xác định trước các dependency và các file config** của ứng dụng đó. 
+  
+  Ví dụ để bắt đầu một project NodeJS, ta cần file config `package.json` như sau:
+
+  ```json
+  {
+    "name": "docker-frontend",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+      "@testing-library/jest-dom": "^5.16.4",
+      "@testing-library/react": "^13.2.0",
+      "@testing-library/user-event": "^13.5.0",
+      "react": "^18.1.0",
+      "react-dom": "^18.1.0",
+      "react-scripts": "5.0.1",
+      "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test",
+      "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+      "extends": [
+        "react-app",
+        "react-app/jest"
+      ]
+    },
+    "browserslist": {
+      "production": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version"
+      ]
+    }
+  }
+  ```
+
+  Và rồi, sau khi **đã có được** file này, chúng ta xây dựng image cho ứng dụng NodeJS của chúng ta dựa vào đó. Vậy nhưng, việc xây dựng file `package.json` về cơ bản cần phải gọi câu lệnh `npm install` trên host machine, sau đó, npm sẽ bắt đầu build dự án khởi đầu cho chúng ta kèm theo file `package.json`. Nhưng để chạy được câu lệnh `npm` thì chúng ta phải cài đặt trước vào host machine NodeJS 
+
+  Điều này lại đi ngược lại với ý tưởng của Docker khi mà Docker sinh ra là để đảm bảo host machine không cần phải cài thêm nhiều môi trường để xây dựng một dự án. Tuy nhiên may mắn là với Docker, chúng ta có thể giải quyết vấn đề này bằng cách xây dựng một số Container đặc biệt.
+  
+  *(Có một cách giải quyết cho vấn đề này là chúng ta xác định trước template file `config package.json` của dự án NodeJS, sau đó build dependency dựa trên template đó, nhưng điều này đôi khi rất phiền phức)*
+  
+  **Lưu ý quan trọng**: *đây không phải là vấn đề của riêng NodeJS. Rất nhiều ứng dụng yêu cầu chúng ta phải cài đặt nhiều môi trường chỉ để set up nên một dự án để xây dựng ứng dụng đó, chẳng hạn như PHP và một số framework của nó như Laravel. NodeJS chỉ là một trong số đó*
+
+1. Chúng ta cần một image để bắt đầu xây dựng Utility Container, chẳng hạn ta xây dựng ra một image tương ứng Dockerfile dưới đây:
+
+  ```dockerfile
+  FROM node:14-alpine
+  
+  WORKDIR /app
+  ```
+  
+  ```bash
+  docker build -t node-util .
+  ```
+
+2. Chúng ta chạy một container dựa trên image `node-util` với flag `-it` và `-d`, điều này sẽ khiến cho container vừa ở **interactive mode** vừa ở **detach mode** và cho phép chúng ta tương tác với nó ngay tại màn hình prompt hiện tại với lệnh `docker exec`
+  
+  *`docker exec` là command cho phép chúng ta execute một command trên một container đang chạy bên cạnh default command có trong image*.
+
+  ```bash
+  # chạy container này ở interactive mode và detach mode, đặt tên là nodeJS_container
+  docker run node-util -it -d --name nodeJS_container
+  
+  # execute command "npm init" bên cạnh default command của image node-util (nếu có) cho container nodeJS_container đang chạy.
+  # thêm flag -it để có thể tương tác với container vì câu lệnh "npm init" sẽ yêu cầu thêm một số input của chúng ta.
+  docker exec -it nodeJS_container npm init
+  ```
+
+  *Ngoài ra, chúng ta để thể override default command và thực hiện trực tiếp câu lệnh `npm init` ngay khi bắt đầu container như sau (dù trường hợp này là không cần thiết vì image này không có default command*:
+  
+  ```bash
+  docker run --name nodeJS_container -it node-util npm init
+  ```
+
+3. Kết thúc câu thao tác input cho câu lệnh `npm init`, chúng ta sẽ tạo được một project NodeJS ở folder `/app` bên trong container `nodeJS_container`.
+   
+Có thể thấy, chúng ta vừa chạy thành công câu lệnh `npm init` và thành công build mà không cần phải cài đặt nodeJS trên host machine, vì câu lệnh này được chạy bên trong container `nodeJS_container`. **Lưu ý**: Sau khi chạy xong câu lệnh khởi tạo project, container sẽ kết thúc.
+
+Vậy chuyện gì xảy ra nếu ta `bind mount` một folder trên host machine đến folder `/app` của container, sau đó thực hiện `npm init` để tạo project trên folder `/app` đấy?
+
+  ```bash
+  docker -v /duong-dan-tuyet-doi/tren/host-machine:/app run -it node-util npm init
+  ```
+
+Kết quả là chúng ta có thể **tạo ra một dự án NodeJS** mà **hoàn toàn không cần cài đặt NodeJS** trên host machine. Đây chính là một trong các ứng dụng của Utility Container.
+  
+</details>
+
+## Misc
+
+<details>
+  <summary>
+    <strong>Ghi chú ngoài lề</strong>
+  </summary>
+  <hr>
+
+  - Tùy vào image mà một số container cần phải run ở **interactive mode** để có thể sử dụng chúng đúng cách, chẳng hạn lấy ví dụ container chứa image của `NodeJS`. Nếu chúng ta run theo cách thông thường như: `docker run node` thì container sẽ chạy và dừng ngay lập tức. Thay vào đó ta cần phải run với flag `-it` để start với **interactive mode**, rồi sau đó sử dụng container này: `docker run node -it`
+
 </details>
