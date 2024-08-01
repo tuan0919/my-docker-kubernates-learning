@@ -7,6 +7,7 @@
   <summary>
     <strong>Khái niệm</strong>
   </summary>
+  
 Images là một trong hai block xây dựng cốt lõi mà Docker hướng đến (block còn lại là "Containers").
 
 Images là các bản **blueprint** / **template** cho containers. Chúng chỉ có quyền đọc (read-only) và chứa ứng dụng cũng như môi trường ứng dụng cần thiết (hệ điều hành, runtime, công cụ, ...).
@@ -24,6 +25,7 @@ Lệnh `CMD` là một lệnh đặc biệt: Nó **không được thực thi kh
   <summary>
     <strong>Khái niệm</strong>
   </summary>
+  
 Containers là **block xây dựng cốt lõi khác** mà Docker hướng đến. Containers là **các instance đang chạy** của Images. Khi bạn tạo một container (qua lệnh `docker run`), một layer mỏng có quyền đọc-ghi (read-write) được thêm vào trên cùng của Image.
 
 Do đó, **nhiều Containers có thể được khởi động dựa trên cùng một Image**. Tất cả các Containers chạy một cách **cô lập**, nghĩa là chúng không chia sẻ bất kỳ trạng thái ứng dụng hoặc dữ liệu nào đã ghi xuống.
