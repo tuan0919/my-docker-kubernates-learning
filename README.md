@@ -3,7 +3,10 @@
 ## Images & Containers
 
 ### Images:
-
+<details>
+  <summary>
+    <strong>Khái niệm</strong>
+  </summary>
 Images là một trong hai block xây dựng cốt lõi mà Docker hướng đến (block còn lại là "Containers").
 
 Images là các bản **blueprint** / **template** cho containers. Chúng chỉ có quyền đọc (read-only) và chứa ứng dụng cũng như môi trường ứng dụng cần thiết (hệ điều hành, runtime, công cụ, ...).
@@ -13,18 +16,29 @@ Images không tự chạy mà thay vào đó, chúng có thể được thực t
 Mỗi hướng dẫn sau đó tạo ra một **layer** trong image. Các layer được sử dụng để xây dựng lại và chia sẻ image một cách hiệu quả.
 
 Lệnh `CMD` là một lệnh đặc biệt: Nó **không được thực thi khi image được xây dựng** mà khi một **container được tạo và khởi động** dựa trên image đó.
+</details>
 
 ### Containers:
 
+<details>
+  <summary>
+    <strong>Khái niệm</strong>
+  </summary>
 Containers là **block xây dựng cốt lõi khác** mà Docker hướng đến. Containers là **các instance đang chạy** của Images. Khi bạn tạo một container (qua lệnh `docker run`), một layer mỏng có quyền đọc-ghi (read-write) được thêm vào trên cùng của Image.
 
 Do đó, **nhiều Containers có thể được khởi động dựa trên cùng một Image**. Tất cả các Containers chạy một cách **cô lập**, nghĩa là chúng không chia sẻ bất kỳ trạng thái ứng dụng hoặc dữ liệu nào đã ghi xuống.
 
 Chúng ta cần tạo và khởi động một Container để bắt đầu ứng dụng bên trong Container. Vì vậy, Containers là những gì cuối cùng được thực thi - cả trong giai đoạn **development** và **production**.
+</details>
 
-### Command Docker cơ bản:
+### Command Docker:
 
-- `docker build .`: build một Dokerfile và tạo ra một Image dựa vào file đó.
+<details>
+  <summary>
+    <strong>Cơ bản</strong>
+  </summary>
+  
+  - `docker build .`: build một Dokerfile và tạo ra một Image dựa vào file đó.
 
   - `t NAME:TAG`: gán `NAME` và `TAG` cho một Image.
 
@@ -56,4 +70,6 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 
 - `docker push IMAGE`: **push** một image lên DockerHub (hoặc một registry khác) - image name/tag phải bao gồm repository name/url.
 
-- `docker pull IMAGE`: **pull** (download) một image từ DockerHub (hoặc một registry khác) xuống máy - _lệnh này sẽ được tự động gọi khi dùng lệnh `docker run IMAGE` với điều kiện image chưa được pull về trước đó và không có local image nào có tên tương tự._
+- `docker pull IMAGE`: **pull** (download) một image từ DockerHub (hoặc một registry khác) xuống máy - _lệnh này sẽ được tự động gọi khi dùng lệnh `docker run IMAGE` với điều kiện image chưa được pull về trước đó và không có local image nào có tên tương tự.
+  
+</details>
