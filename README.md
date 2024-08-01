@@ -422,6 +422,56 @@ Kết quả là chúng ta có thể **tạo ra một dự án NodeJS** mà **ho�
   
 </details>
 
+<details>
+  <summary>
+    <strong>Cải thiện Utility Container</strong>
+  </summary>
+  <hr>
+
+  Chúng ta có thể cải thiện image của Utility Container bằng cách dùng đến `ENTRYPOINT`:
+
+  ```Dockerfie
+  FROM node:14-alpine
+
+  WORKDIR /app
+  
+  ENTRYPOINT [ "npm" ]
+  ```
+
+  ```bash
+  docker build -t node-util .
+  ```
+  
+  Như vậy, khi sử dụng container này, ta không cần phải bắt đầu command bằng `npm` nữa:
+
+  ```bash
+  docker -v /duong-dan-tuyet-doi/tren/host-machine:/app run -it node-util init
+  ```
+
+  Hoặc tối ưu hơn nữa, ta kết hợp **Docker Compose** để ẩn bớt đi độ dài của câu lệnh, cụ thể là flag `-v` dùng để Bind mounts.
+
+  ```yaml
+  version: '3.8'
+  services:
+    my-npm:
+      build: 
+        context: ./
+      stdin_open: true
+      tty: true
+      volumes:
+        - ./:/app
+  ```
+
+Sau đó ta sử dụng Utility Container này như sau:
+
+```bash
+docker-compose run --rm my-npm init
+```
+
+Trong đó flag `--rm` dùng để đánh dấu yêu cầu xóa container `my-npm` sau khi sử dụng xong.
+  
+</details>
+
 ## Misc
 
 <details>
