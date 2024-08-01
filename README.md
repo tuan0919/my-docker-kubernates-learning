@@ -37,8 +37,9 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 
 <details>
   <summary>
-    <strong>Cơ bản</strong>
+    <strong>General</strong>
   </summary>
+  <hr>
   
   - `docker build .`: build một Dokerfile và tạo ra một Image dựa vào file đó.
 
@@ -74,6 +75,28 @@ Chúng ta cần tạo và khởi động một Container để bắt đầu ứn
 
 - `docker pull IMAGE`: **pull** (download) một image từ DockerHub (hoặc một registry khác) xuống máy - _lệnh này sẽ được tự động gọi khi dùng lệnh `docker run IMAGE` với điều kiện image chưa được pull về trước đó và không có local image nào có tên tương tự.
   
+</details>
+
+<details>
+  <summary>
+    <strong>Volumes & Bind mounts</strong>
+  </summary>
+  <hr>
+
+  - `docker run -v /duong-dan/ben-trong/container IMAGE`: Tạo một **Anonymous Volume** bên trong container này.
+
+  - `docker run -v ten:/duong-dan/ben-trong/container IMAGE`: Tạo một **Named Volume** (có tên `ten`) bên trong container này.
+
+  - `docker run -v /duong-dan-tuyet-doi/ben-trong/host-machine:/duong-dan/ben-trong/container`: **Bind Mount** một tài nguyên có đường dẫn tuyệt đối `/duong-dan-tuyet-doi/ben-trong/host-machine` trên host machine đến tài nguyên có đường dẫn `/duong-dan/ben-trong/container` bên trong Container.
+
+  - `docker volume ls`: Liệt kê ra toàn bộ volume **đang hoạt động / đang lưu trữ ** (của tất cả các container).
+
+  - `docker volume create VOL_NAME`: **Tạo một volume mới (Named Volume)** có tên `VOL_NAME`. Thường thì không sử dụng đến vì Docker sẽ tự động tạo một Named Volume trong trường hợp Named Volume chúng ta định nghĩa ra ở lệnh `docker run` không tồn tại.
+
+  - `docker volume rm VOL_NAME`: **Xóa một volume** có tên `VOL_NAME` hoặc id tương tự.
+
+  - `docker volume prune`: **Xóa tất cả volume không dùng đến** (không được sử dụng đến bởi bất kì container nào, kể cả các container đang dừng).
+
 </details>
 
 ## Data & Volumes
@@ -124,6 +147,36 @@ Với Volumes, **data có thể được pass vào một container** (nếu fold
 
 *(lưu ý: volume về cơ bản vẫn là một folder bên trong host machine, chỉ là nó có thể bị hoặc không bị quản lí bởi Docker.)*
 
-**Volumes được tạo ra và quản lí bởi Docker** - với developer, chúng ta không nhất thiết phải biết các volume này thực tế nằm ở đâu bên trong host machine. Bởi vì các volumes đó được mặc định hiểu là **không được tạo ra cho chúng ta tương tác trực tiếp với chúng** - Nếu thật sự cần, thì sử dụng "Bind mounts".
+**Volumes được tạo ra và quản lí bởi Docker** - là developer, chúng ta không nhất thiết phải biết các volume này thực tế nằm ở đâu bên trong host machine. Bởi vì các volumes đó được mặc định hiểu là **không được tạo ra cho chúng ta tương tác trực tiếp với chúng** - Nếu thật sự cần, thì sử dụng "Bind mounts".
 
+**Named Volumes** mặt khác, lại giúp chúng ta **duy trì data**. Bởi vì data không chỉ được viết trong container, mà còn ở trên host machine, **data sẽ tồn tại ngay cả khi container đó bị xóa** (do Named Volumes thì sẽ không bị xóa một cách tự động). Do vậy, chúng ta có thể sử dụng Named Volumes để duy trì data của container. (chẳng hạn log file, upload file, database file, vv...).
+
+Anonymous Volumes có thể giúp ích trong trường hợp cần đảm bảo một số folder nội bộ trong container **không thể bị ghi đè** bởi "Bind mount".
+
+Mặc định thì, **Anonymous Volumes sẽ bị xóa** nếu container được khởi động với flag `--rm` và dừng lại sau đó. Chúng sẽ **không bị xóa** nếu như container chỉ khởi động thông thường (không có option `--rm` rồi bị xóa.
+
+**Named Volumes sẽ không bao giờ bị xóa**, chúng ta xóa nó một cách chủ động bằng lệnh `docker rm VOL_NAME`
+
+</details>
+
+### Bind Mounts
+
+<details>
+  <summary>
+    <strong>Khái niệm</strong>
+  </summary>
+  <hr>
+  
+  Bind Mounts về cơ bản giống với Volumes - điểm khác biệt chính là chúng ta - developer, **chủ động set một đường dẫn đến tài nguyên nào đó trên host machine** sẽ được kết nối đến một đường dẫn tài nguyên nào đó trong container (*trong khi đó đối với Volumes thì Docker sẽ là bên quyết định điều này*)
+
+  Chúng ta thực hiện điều này thông qua lệnh: `-v /duong-dan-tuyet-doi/ben-trong/host-machine:/duong-dan/ben-trong/container`.
+
+  Đường dẫn phía trước dấu `:` phải là **đường dẫn tuyệt đối** trên host machine khi sử dụng flag `-v` với lệnh `docker run`.
+
+  Bind Mounts hữu ích trong trường hợp cần **chia sẻ dữ liệu với Container** khi mà những dữ liệu này có thể bị thay đổi trong lúc Container đang chạy - chẳng hạn, source code nào đó mà chúng ta muốn chia sẽ với Container đang chạy trong quá trình xây dựng ứng dụng.
+
+  **Không nên sử dụng bind mounts khi mà chỉ muốn duy trì dữ liệu** - Named Volumes được sinh ra để giải quyết vấn đề này (Ngoại trừ trường hợp chúng ta muốn xem thử dữ liệu sẽ được lưu xuống như thế nào trong quá trình phát triển ứng dụng).
+
+  Về cơ bản, **Bind Mounts rất phù hợp trong quá trình phát triển ứng dụng** - chúng không được sinh ra để sử dụng trong giai đoạn production (bởi vì container nên được chạy độc lập với host machine của nó).
+    
 </details>
