@@ -25,3 +25,13 @@ Tại section này, chúng ta sẽ tiến hành deploy một Docker Container l�
 - Trong một số trường hợp, chúng ta sẽ phải cân nhắc giải pháp đánh đổi cho việc **sẽ có ít quyền control hơn đối với một deploy platform** để đổi lại việc **ít phải quan tâm đến một vấn đề** nào đó. Bởi lẽ nếu chúng ta control mọi thứ trên host machine, chúng ta sẽ phải chịu trách nhiệm cho quá nhiều thứ, chẳng hạn như chúng ta phải quan tâm đến vấn đề bảo mật và tương tự.
 
 ![Things to watch out for](../images/09_01.png)
+
+#### Basic Example - Ứng dụng NodeJS riêng lẻ:
+
+Ứng dụng chỉ có NodeJS, không database, không gì cả. Nghĩa là chương trình sẽ chỉ cần 1 Image & 1 Container.
+
+**Cách tiếp cận khả thi**:
+
+1. Cài đặt Docker trên remote server (chẳng hạn qua SSH)
+2. Push image từ local host machine lên Dockerhub hoặc một Registry nào đó.
+3. Tại remote server, pull image đó về, chạy container dựa trên image vừa pull về. Expose port cần thiết ra WWW để end users có thể truy cập được.
