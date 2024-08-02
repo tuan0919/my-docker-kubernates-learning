@@ -21,3 +21,11 @@ Mục tiêu của section này sẽ tập trung xây dựng một ứng dụng L
 #### Hình minh họa:
 
 ![Target Setup](/images/08_target_setup.png)
+
+## Khi nào cần sử dụng Bind Mounts & COPY?
+
+Về cơ bản, **Bind Mounts** đi ngược lại với ý tưởng của Docker, khi mà với Docker, chúng ta mong muốn tất cả những thứ cần thiết cho chương trình đều nằm trong container, độc lập hoàn toàn với Host Machine.
+
+Bind Mounts chỉ giúp ích cho chúng ta trong giai đoạn phát triển chương trình, bởi vì với bind mount, những thay đổi trên source code chúng ta đang làm việc sẽ ngay lập tức ánh xạ đến container mà không cần phải build lại image.
+
+Thế nên, sau khi đã phát triển xong ứng dụng, chúng ta cần thực hiện **copy SNAPSHOT** chứa latest code và latest configuration vào bên trong image. Điều này sẽ đảm bảo image của chúng ta luôn luôn chứa **latest SNAPSHOT**, và khi đem image đi deploy, nó sẽ chứa đầy đủ code cần thiết để có thể chạy độc lập mà không phụ thuộc vào bind mount của host machine.
