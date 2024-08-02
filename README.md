@@ -474,12 +474,42 @@ Trong đó flag `--rm` dùng để đánh dấu yêu cầu xóa container `my-np
 
 ## Misc
 
-<details>
-  <summary>
-    <strong>Ghi chú ngoài lề</strong>
-  </summary>
-  <hr>
+#### Một số ghi chú ngoài lề:
 
-- Tùy vào image mà một số container cần phải run ở **interactive mode** để có thể sử dụng chúng đúng cách, chẳng hạn lấy ví dụ container chứa image của `NodeJS`. Nếu chúng ta run theo cách thông thường như: `docker run node` thì container sẽ chạy và dừng ngay lập tức. Thay vào đó ta cần phải run với flag `-it` để start với **interactive mode**, rồi sau đó sử dụng container này: `docker run node -it`
+  <details>
+    <summary>
+      <strong>
+        1. Container đôi lúc cần phải chạy với -it flag
+      </strong>
+    </summary>
+    <hr>
+    
+Tùy vào image mà một số container cần phải run ở **interactive mode** để có thể sử dụng chúng đúng cách, chẳng hạn lấy ví dụ container chứa image của `nodeJS`.
 
-</details>
+Nếu chúng ta run theo cách thông thường như: `docker run node` thì container sẽ chạy và dừng ngay lập tức. Thay vào đó ta cần phải run với flag `-it` để chạy container này trong **interactive mode**, rồi sau đó sử dụng container này:
+
+_Cách sử dụng đúng trong trường hợp này_: `docker run -it node`
+
+  </details>
+
+  <details>
+    <summary>
+      <strong>
+        2. Dockerfile tự động sử dụng ENTRYPOINT và CMD dựa vào Base Image.
+      </strong>
+    </summary>
+    <hr>
+
+Nếu một Dockerfile không được định nghĩa `ENTRYPOINT` hoặc `CMD`, thì `ENTRYPOINT` hoặc `CMD` của **Base Image** sẽ được sử dụng (nếu có), chẳng hạn:
+
+```dockerfile
+FROM php:7.4-fpm-alpine
+
+WORKDIR /var/www/html
+
+RUN docker-php-ext-install pdo pdo_mysql
+```
+
+Ta không định nghĩa `ENTRYPOINT` hay `CMD` cho Dockerfile này, thì `ENTRYPOINT` hay `CMD` của base image tức `php:7.4-fpm-alpine` sẽ được sử dụng!
+
+  </details>
