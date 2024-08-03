@@ -35,3 +35,9 @@ Tại section này, chúng ta sẽ tiến hành deploy một Docker Container l�
 1. Cài đặt Docker trên remote server (chẳng hạn qua SSH)
 2. Push image từ local host machine lên Dockerhub hoặc một Registry nào đó.
 3. Tại remote server, pull image đó về, chạy container dựa trên image vừa pull về. Expose port cần thiết ra WWW để end users có thể truy cập được.
+
+**Hạn chế của cách tiếp cận trên**:
+
+- Chúng ta "hoàn toàn kiểm soát" remote machine => cần phải config nhiều.
+- Chúng ta phải đảm bảo các phần mềm trọng yếu bên trong remote machine phải up-to-date.
+- Chúng ta phải tự tay set up security group, firewall. Và dễ dàng tạo ra lổ hổng bảo mật nếu không kiểm soát tốt.
